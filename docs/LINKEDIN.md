@@ -5,6 +5,7 @@ Just shipped `unity-loop`: K parallel islo.dev sandboxes each render the same Un
 
 Link: https://zozo123.github.io/unity-loop-page/
 Repo: https://github.com/zozo123/unity-loop
+Reel: https://zozo123.github.io/unity-loop-page/assets/unity-loop.mp4 (upload directly as LinkedIn video)
 
 ## Backup (1 sentence, tighter)
 unity-loop: Claude picks the best of K Unity WebGL variants rendered in parallel islo.dev sandboxes, judged by vision against a target aesthetic — 1.2/5 → 4.8/5 in six rounds. https://zozo123.github.io/unity-loop-page/

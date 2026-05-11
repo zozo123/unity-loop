@@ -30,4 +30,4 @@ Headers verified end-to-end through the islo gateway:
 
 Inspired by my [pokeloop](https://github.com/zozo123/pokeloop) (GA over Pokémon-GO policies on islo) and [meta-harness-on-islo](https://github.com/zozo123/meta-harness-on-islo) (0/5 → 5/5 in 4 proposer steps).
 
-Repo: https://github.com/zozo123/unity-loop · Page: https://zozo123.github.io/unity-loop-page/
+Repo: https://github.com/zozo123/unity-loop · Page: https://zozo123.github.io/unity-loop-page/ · 1080×1080 launch reel: https://zozo123.github.io/unity-loop-page/assets/unity-loop.mp4
