@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# unity-loop — orchestrator dispatcher
+# Subcommands: eval | propose | loop | viz | demo
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$HERE"
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+  demo)     exec python3 bin/orchestrator.py demo "$@" ;;
+  loop)     exec python3 bin/orchestrator.py loop "$@" ;;
+  eval)     exec python3 bin/judge.py "$@" ;;
+  propose)  exec python3 bin/proposer.py "$@" ;;
+  host)     exec python3 bin/host.py "$@" ;;
+  viz)
+    port="${1:-8765}"
+    echo "→ dashboard: http://localhost:${port}"
+    cd viz && exec python3 -m http.server "$port"
+    ;;
+  help|-h|--help|"")
+    cat <<EOF
+unity-loop — Unity-on-islo arena
+
+Subcommands:
+  demo          run the offline deterministic loop (~5s)
+  loop          run the real loop (needs ANTHROPIC_API_KEY + islo CLI)
+                  --task <name>   task name (default: synthwave)
+                  --k <int>       parallel variants per round (default: 4)
+                  --steps <int>   loop iterations (default: 6)
+  eval <run>    judge one run dir with Claude vision
+  propose <run> ask Claude for the next variant given runs/
+  host <name>   spawn one islo sandbox serving a variant (debug)
+  viz [port]    serve viz/index.html (default port 8765)
+
+Examples:
+  bin/unity-loop demo
+  bin/unity-loop loop --task synthwave --k 4 --steps 6
+  bin/unity-loop viz
+EOF
+    ;;
+  *) echo "unknown: $cmd" >&2; exit 2 ;;
+esac

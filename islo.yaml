@@ -1,0 +1,24 @@
+# Islo Configuration for unity-loop worker sandboxes
+sandbox: unity-loop-worker
+# Default Ubuntu image — Caddy installed by setup_script
+cpus: 1
+memory_mb: 1024
+disk_gb: 4
+
+sources:
+  - url: https://github.com/MirzaBeig/Lightning-VFX-WebGL
+    branch: main
+
+env:
+  CADDY_VERSION: "2.8.4"
+  PORT: "8080"
+
+setup_script: |
+  set -e
+  if ! command -v caddy >/dev/null; then
+    curl -fsSL "https://github.com/caddyserver/caddy/releases/download/v${CADDY_VERSION}/caddy_${CADDY_VERSION}_linux_amd64.tar.gz" \
+      | tar -xz -C /tmp caddy
+    sudo mv /tmp/caddy /usr/local/bin/caddy
+  fi
+  caddy version
+  echo "[setup] ready"

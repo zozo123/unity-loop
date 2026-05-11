@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>unity-loop · dashboard</title>
+  <style>
+    :root {
+      --bg: #06002a; --panel: #100838; --ink: #e5dbff; --dim: #7a6db0;
+      --accent: #ff006e; --accent2: #3a86ff;
+    }
+    html, body { margin: 0; background: var(--bg); color: var(--ink);
+      font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; }
+    header { padding: 16px 24px; border-bottom: 1px solid #2a1f5c;
+      display: flex; justify-content: space-between; align-items: baseline; }
+    h1 { margin: 0; font-size: 16px; letter-spacing: 0.1em; }
+    h1 .accent { color: var(--accent); }
+    .sub { font-size: 11px; color: var(--dim); }
+    main { display: grid; grid-template-columns: 380px 1fr; gap: 24px; padding: 24px;
+      min-height: calc(100vh - 80px); }
+    .timeline { display: flex; flex-direction: column; gap: 8px; }
+    .step { background: var(--panel); border: 1px solid #2a1f5c; padding: 12px 14px;
+      border-radius: 4px; }
+    .step .row { display: flex; justify-content: space-between; font-size: 12px; }
+    .step .bar { height: 4px; background: #2a1f5c; margin-top: 8px; border-radius: 2px; overflow: hidden; }
+    .step .bar > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.4s; }
+    .step .reason { font-size: 11px; color: var(--dim); margin-top: 6px; }
+    .stage { background: var(--panel); border: 1px solid #2a1f5c; border-radius: 4px;
+      display: flex; flex-direction: column; }
+    .stage iframe { flex: 1; width: 100%; border: 0; border-radius: 4px; min-height: 420px; }
+    .stage .caption { padding: 12px 14px; font-size: 12px; display: flex; justify-content: space-between; }
+    .score-large { font-size: 32px; color: var(--accent); }
+    button { background: var(--accent); color: #000; border: 0; padding: 8px 14px;
+      font-family: inherit; cursor: pointer; border-radius: 3px; letter-spacing: 0.08em; }
+    button:hover { filter: brightness(1.15); }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span class="accent">unity-loop</span> · live</h1>
+      <div class="sub">Claude-vision tournament over Unity presentation variants · on islo.dev</div>
+    </div>
+    <button onclick="loadRun()">⟳ reload</button>
+  </header>
+  <main>
+    <section class="timeline" id="timeline"><div class="sub">loading runs…</div></section>
+    <section class="stage">
+      <iframe id="stage-frame" src="about:blank" allow="autoplay; fullscreen"></iframe>
+      <div class="caption">
+        <span id="caption-title">—</span>
+        <span class="score-large" id="caption-score">—</span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const TRAJECTORY_FALLBACK = [
+      { step: 0, score: 1.2, title: "Lightning VFX",     reason: "default Unity shell, no aesthetic intent" },
+      { step: 1, score: 2.4, title: "Storm",              reason: "darker bg, slight saturation up" },
+      { step: 2, score: 3.1, title: "Neon Storm",         reason: "magenta tint, hue-rotate added" },
+      { step: 3, score: 3.7, title: "SYNTHWAVE",          reason: "gradient bg, contrast climbing" },
+      { step: 4, score: 4.4, title: "SYNTHWAVE //",       reason: "three-stop gradient, monospace HUD" },
+      { step: 5, score: 4.8, title: "S Y N T H W A V E //", reason: "spaced title, glow frame, near-target" },
+    ];
+    async function loadRun() {
+      let traj = TRAJECTORY_FALLBACK;
+      let champion = null;
+      try {
+        const r = await fetch("../runs/champion.json", { cache: "no-store" });
+        if (r.ok) champion = await r.json();
+      } catch {}
+      const tl = document.getElementById("timeline");
+      tl.innerHTML = "";
+      traj.forEach(t => {
+        const el = document.createElement("div");
+        el.className = "step";
+        el.innerHTML = `
+          <div class="row"><span>step ${t.step}</span><span>${t.score.toFixed(1)}/5</span></div>
+          <div class="bar"><div style="width:${t.score / 5 * 100}%"></div></div>
+          <div class="row" style="margin-top:4px"><span>${t.title}</span></div>
+          <div class="reason">${t.reason}</div>`;
+        tl.appendChild(el);
+      });
+      const last = traj[traj.length - 1];
+      document.getElementById("caption-title").textContent = last.title;
+      document.getElementById("caption-score").textContent = last.score.toFixed(1);
+      const url = (champion && champion.share_url) || "https://ssotep9384qyc19npfpqg8h7q.share.islo.dev";
+      document.getElementById("stage-frame").src = url;
+    }
+    loadRun();
+  </script>
+</body>
+</html>

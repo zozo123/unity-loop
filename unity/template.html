@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{TITLE}} · unity-loop</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: {{BG}}; color: #fff;
+      font-family: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
+      overflow: hidden; }
+    .arena {
+      position: fixed; inset: 0; display: grid; place-items: center;
+    }
+    .frame {
+      padding: 8px;
+      border: 2px solid {{FRAME_COLOR}};
+      border-radius: 6px;
+      box-shadow: {{FRAME_GLOW}};
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+    }
+    #unity-canvas { display: block; width: 960px; height: 540px; max-width: 90vw; max-height: 70vh;
+                    filter: {{FILTER}}; }
+    .hud {
+      position: fixed; top: 12px; left: 16px; right: 16px;
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+    }
+    .hud .title { font-weight: 700; color: {{FRAME_COLOR}}; }
+    .hud .brand { opacity: 0.6; }
+    .hud .brand a { color: inherit; }
+    #unity-progress { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+                      width: 240px; height: 4px; background: rgba(255,255,255,0.1); }
+    #unity-progress > div { height: 100%; width: 0%; background: {{FRAME_COLOR}}; transition: width .2s; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title">{{TITLE}}</div>
+    <div class="brand">unity-loop · <a href="https://islo.dev" target="_blank">islo.dev</a></div>
+  </div>
+  <div class="arena">
+    <div class="frame">
+      <canvas id="unity-canvas" width="960" height="540" tabindex="-1"></canvas>
+    </div>
+  </div>
+  <div id="unity-progress"><div></div></div>
+  <script>
+    var buildUrl = "Build";
+    var config = {
+      dataUrl: buildUrl + "/WebGL.data.unityweb",
+      frameworkUrl: buildUrl + "/WebGL.framework.js.unityweb",
+      codeUrl: buildUrl + "/WebGL.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "unity-loop",
+      productName: "{{TITLE}}",
+      productVersion: "1.0",
+    };
+    var canvas = document.querySelector("#unity-canvas");
+    var bar = document.querySelector("#unity-progress > div");
+    var script = document.createElement("script");
+    script.src = buildUrl + "/WebGL.loader.js";
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (p) { bar.style.width = (p * 100).toFixed(0) + "%"; })
+        .then(function () { document.getElementById("unity-progress").style.display = "none"; })
+        .catch(function (e) { console.error(e); });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
