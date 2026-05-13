@@ -43,8 +43,11 @@ jobs:
       - name: Install islo CLI
         if: ${{ env.ISLO_API_KEY != '' }}
         run: |
-          curl -fsSL https://islo.dev/install.sh | bash
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          set -euo pipefail
+          mkdir -p "$HOME/.islo-bin"
+          curl -fsSL https://islo.dev/install.sh | ISLO_DIR="$HOME/.islo-bin" sh
+          echo "$HOME/.islo-bin" >> "$GITHUB_PATH"
+          "$HOME/.islo-bin/islo" --version
 
       - name: Mint fresh share
         if: ${{ env.ISLO_API_KEY != '' }}
