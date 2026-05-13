@@ -1,0 +1,89 @@
+name: refresh-share
+
+# Keep the live unity-demo share URL fresh. islo shares max out at 7d TTL,
+# so re-issue every 6d and commit the new URL into runs/champion.json.
+# Manual `workflow_dispatch` lets you mint a new URL on demand too.
+
+on:
+  schedule:
+    # Every 6 days at 03:17 UTC (offset to avoid the busy top-of-hour).
+    - cron: "17 3 */6 * *"
+  workflow_dispatch:
+    inputs:
+      sandbox:
+        description: "islo sandbox name to share"
+        required: false
+        default: "unity-demo"
+      ttl:
+        description: "Share TTL (e.g. 24h, 7d). islo max is 7d."
+        required: false
+        default: "7d"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      ISLO_API_KEY: ${{ secrets.ISLO_API_KEY }}
+      ISLO_OUTPUT_FORMAT: json
+      SANDBOX: ${{ github.event.inputs.sandbox || 'unity-demo' }}
+      TTL: ${{ github.event.inputs.ttl || '7d' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if no ISLO_API_KEY secret
+        if: ${{ env.ISLO_API_KEY == '' }}
+        run: |
+          echo "::warning::ISLO_API_KEY secret not set — skipping refresh."
+          echo "Add a repo secret named ISLO_API_KEY (islo api-key create) to enable auto-refresh."
+          exit 0
+
+      - name: Install islo CLI
+        if: ${{ env.ISLO_API_KEY != '' }}
+        run: |
+          curl -fsSL https://islo.dev/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Mint fresh share
+        if: ${{ env.ISLO_API_KEY != '' }}
+        id: share
+        run: |
+          set -euo pipefail
+          out=$(islo share "$SANDBOX" 8080 --ttl "$TTL" -o json)
+          echo "$out"
+          url=$(echo "$out" | python3 -c "import json,sys;print(json.load(sys.stdin)['url'])")
+          exp=$(echo "$out" | python3 -c "import json,sys;print(json.load(sys.stdin).get('expires_at',''))")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "expires=$exp" >> "$GITHUB_OUTPUT"
+
+      - name: Patch runs/champion.json
+        if: ${{ env.ISLO_API_KEY != '' }}
+        env:
+          NEW_URL: ${{ steps.share.outputs.url }}
+          NEW_EXP: ${{ steps.share.outputs.expires }}
+        run: |
+          python3 - <<'PY'
+          import json, os, time, pathlib
+          p = pathlib.Path("runs/champion.json")
+          d = json.loads(p.read_text())
+          d["share_url"] = os.environ["NEW_URL"]
+          d["share_expires_at"] = os.environ["NEW_EXP"]
+          d["sandbox"] = os.environ.get("SANDBOX", d.get("sandbox", "unity-demo"))
+          d["ts"] = int(time.time())
+          p.write_text(json.dumps(d, indent=2) + "\n")
+          PY
+
+      - name: Commit & push
+        if: ${{ env.ISLO_API_KEY != '' }}
+        run: |
+          if git diff --quiet -- runs/champion.json; then
+            echo "No change."
+            exit 0
+          fi
+          git config user.name  "unity-loop-bot"
+          git config user.email "bot@unity-loop.local"
+          git add runs/champion.json
+          git commit -m "refresh: rotate islo share (TTL=${TTL})"
+          git push

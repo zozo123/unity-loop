@@ -1,6 +1,6 @@
 {
   "ts": 1778507300,
-  "run": "20260511-bootstrap",
+  "run": "20260513-refresh",
   "score": 4.8,
   "variant": {
     "bg": "linear-gradient(180deg,#ff006e,#8338ec 35%,#3a86ff 65%,#06002a)",
@@ -9,5 +9,7 @@
     "frame_color": "#ff006e",
     "frame_glow": "0 0 40px #ff006e88, 0 0 80px #3a86ff44"
   },
-  "share_url": "https://ssotep9384qyc19npfpqg8h7q.share.islo.dev"
+  "share_url": "https://tfz03pd24bdo8ehxe9ge9g6f4.share.islo.dev",
+  "share_expires_at": "2026-05-20T07:33:16Z",
+  "sandbox": "unity-demo"
 }
