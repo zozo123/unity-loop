@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -38,15 +38,15 @@
 <body>
   <header>
     <div>
-      <h1><span class="accent">unity-loop</span> · live</h1>
-      <div class="sub">Claude-vision tournament over Unity presentation variants · on islo.dev</div>
+      <h1><span class="accent">unity-loop</span> · dashboard</h1>
+      <div class="sub">Claude-vision search over Unity presentation variants on islo.dev · scores shown are the canned offline demo trajectory (bin/orchestrator.py), not a measured run</div>
     </div>
-    <button onclick="loadRun()">⟳ reload</button>
+    <button type="button" onclick="loadRun()">⟳ reload</button>
   </header>
   <main>
     <section class="timeline" id="timeline"><div class="sub">loading runs…</div></section>
     <section class="stage">
-      <iframe id="stage-frame" src="about:blank" allow="autoplay; fullscreen"></iframe>
+      <iframe id="stage-frame" title="Champion variant preview" src="about:blank" allow="autoplay; fullscreen"></iframe>
       <div class="caption">
         <span id="caption-title">—</span>
         <span class="score-large" id="caption-score">—</span>

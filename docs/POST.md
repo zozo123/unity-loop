@@ -1,10 +1,10 @@
 # unity-loop — vibe-coding a Unity scene with a Claude-vision tournament on islo.dev
 
-**TL;DR.** I wired the [meta-harness](https://github.com/zozo123/meta-harness-on-islo) proposer/eval loop onto a Unity WebGL build, with islo.dev sandboxes as the parallel worker pool and Claude (vision) as the judge. Given a target prompt like *"synthwave"*, the loop converges from 1.2/5 to 4.8/5 in six rounds. The Unity wasm is fixed; the agent iterates on the presentation wrapper (CSS, page chrome, title, glow). End-to-end demo runs in ~30s with `bin/unity-loop loop --task synthwave`.
+**TL;DR.** I wired the [meta-harness](https://github.com/zozo123/meta-harness-on-islo) proposer/eval loop onto a Unity WebGL build, with islo.dev sandboxes as the parallel worker pool and Claude (vision) as the judge. Given a target prompt like *"synthwave"*, the proposer and judge search for a better wrapper; in the offline demo the scripted trajectory goes from 1.2/5 to 4.8/5 in six rounds (canned values in `bin/orchestrator.py`, not a measured run). The Unity wasm is fixed; the agent iterates on the presentation wrapper (CSS, page chrome, title, glow). The offline demo runs in a few seconds with `bin/unity-loop demo`; the real loop is `bin/unity-loop loop --task synthwave` and needs `ANTHROPIC_API_KEY` plus the islo CLI.
 
 ## What's actually happening
 
-1. **One Unity scene, K sandboxes per round.** For each round, the proposer emits K JSON variants (CSS, filter, frame color, title). Each variant is rendered by templating `unity/template.html`, dropped into a fresh islo sandbox along with the prebuilt Lightning-VFX wasm, served by Caddy with the right `application/wasm` + `Content-Encoding: gzip` + COOP/COEP headers we [verified end-to-end](https://github.com/zozo123/unity-loop#headers).
+1. **One Unity scene, K sandboxes per round.** For each round, the proposer emits K JSON variants (CSS, filter, frame color, title). Each variant is rendered by templating `unity/template.html`, dropped into a fresh islo sandbox along with the prebuilt Lightning-VFX wasm, served by Caddy with the right `application/wasm` + `Content-Encoding: gzip` + COOP/COEP headers we [checked end-to-end](../README.md#headers) in May 2026.
 
 2. **Claude judges.** A headless Chromium screenshots each variant's public share URL, the screenshot is sent to Claude Sonnet 4.6 with the task prompt, the model returns `{score, reason}` JSON. K scores per round.
 
@@ -21,7 +21,7 @@
 
 The only honest reason to use sandboxes here is **parallel cold workers**. K=8 variants × 6 rounds = 48 sandbox-runs. Doing it locally would block on Caddy ports and machine state. With `islo use ... --source github://...` each variant is a one-line spawn, and `islo share ... 8080` hands back a public URL the judge can hit anonymously.
 
-The other thing that matters: the gateway streams unbuffered. Unity `.wasm.unityweb` files are 7MB gzipped; islo's gateway passes them through with `Content-Encoding: gzip` intact (verified — see headers in the README). If you have a static host that decompresses or re-buffers, Unity dies in the loader.
+The other thing that matters: the gateway streams unbuffered. Unity `.wasm.unityweb` files are 7MB gzipped; islo's gateway passes them through with `Content-Encoding: gzip` intact (checked in May 2026 — see [Headers](../README.md#headers) in the README). If you have a static host that decompresses or re-buffers, Unity dies in the loader.
 
 ## Tier 3 — real Unity Editor rebuilds
 
