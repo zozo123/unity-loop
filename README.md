@@ -49,7 +49,7 @@ tasks/<name>/         prompt.md (target aesthetic)
 harness/v<N>/         system.md (proposer system prompt)
 bin/unity-loop        CLI (demo | loop | eval | propose | host | viz)
 bin/orchestrator.py   loop + `demo` (deterministic offline trajectory, DEMO_TRAJECTORY)
-bin/proposer.py       reads runs/, asks Claude for next variant
+bin/proposer.py       asks Claude for the next variant given the score history
 bin/judge.py          Claude-vision scoring of screenshots
 bin/host.py           spawns islo sandbox, templates variant, writes the Caddyfile
                       (precompressed gzip + COOP/COEP + application/wasm), shares port 8080
