@@ -28,6 +28,12 @@
     .stage { background: var(--panel); border: 1px solid #2a1f5c; border-radius: 4px;
       display: flex; flex-direction: column; }
     .stage iframe { flex: 1; width: 100%; border: 0; border-radius: 4px; min-height: 420px; }
+    .stage .still { flex: 1; margin: 0; display: flex; flex-direction: column; min-height: 420px; }
+    .stage .still img { flex: 1; width: 100%; height: auto; min-height: 0; object-fit: contain;
+      background: #000; border-radius: 4px 4px 0 0; }
+    .stage .still figcaption { padding: 10px 14px; font-size: 11px; color: var(--dim);
+      border-bottom: 1px solid #2a1f5c; }
+    [hidden] { display: none !important; }
     .stage .caption { padding: 12px 14px; font-size: 12px; display: flex; justify-content: space-between; }
     .score-large { font-size: 32px; color: var(--accent); }
     button { background: var(--accent); color: #000; border: 0; padding: 8px 14px;
@@ -46,7 +52,12 @@
   <main>
     <section class="timeline" id="timeline"><div class="sub">loading runs…</div></section>
     <section class="stage">
-      <iframe id="stage-frame" title="Champion variant preview" src="about:blank" allow="autoplay; fullscreen"></iframe>
+      <iframe id="stage-frame" title="Champion variant preview" src="about:blank" allow="autoplay; fullscreen" hidden></iframe>
+      <figure class="still" id="stage-still" hidden>
+        <img src="champion-still.jpg" width="876" height="493"
+             alt="Still from the recorded launch reel: the page in the champion S Y N T H W A V E // styling">
+        <figcaption id="stage-note">Live preview unavailable.</figcaption>
+      </figure>
       <div class="caption">
         <span id="caption-title">—</span>
         <span class="score-large" id="caption-score">—</span>
@@ -62,6 +73,41 @@
       { step: 4, score: 4.4, title: "SYNTHWAVE //",       reason: "three-stop gradient, monospace HUD" },
       { step: 5, score: 4.8, title: "S Y N T H W A V E //", reason: "spaced title, glow frame, near-target" },
     ];
+    // islo shares expire after 24h-7d. Expired share hosts fail TLS, so the
+    // probe throws; an unexpired one is reachable (opaque no-cors response).
+    // Same approach as the project page (zozo123/unity-loop-page champion.js).
+    async function shareAlive(champion) {
+      if (!champion || !champion.share_url) return false;
+      const expires = Date.parse(champion.share_expires_at || "");
+      if (!Number.isNaN(expires) && expires < Date.now()) return false;
+      const probe = async (opts) => {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 4000);
+        try {
+          return await fetch(champion.share_url, { ...opts, signal: ctrl.signal, cache: "no-store" });
+        } finally {
+          clearTimeout(t);
+        }
+      };
+      try {
+        await probe({ method: "GET", mode: "no-cors" });
+      } catch {
+        return false;
+      }
+      try {
+        return (await probe({ method: "HEAD" })).ok;
+      } catch {
+        return true; // CORS can block the HEAD; the no-cors GET already reached the host
+      }
+    }
+    function showStage(url, note) {
+      const frame = document.getElementById("stage-frame");
+      const still = document.getElementById("stage-still");
+      frame.hidden = !url;
+      frame.src = url || "about:blank";
+      still.hidden = !!url;
+      if (note) document.getElementById("stage-note").textContent = note;
+    }
     async function loadRun() {
       let traj = TRAJECTORY_FALLBACK;
       let champion = null;
@@ -84,8 +130,16 @@
       const last = traj[traj.length - 1];
       document.getElementById("caption-title").textContent = last.title;
       document.getElementById("caption-score").textContent = last.score.toFixed(1);
-      const url = (champion && champion.share_url) || "https://ssotep9384qyc19npfpqg8h7q.share.islo.dev";
-      document.getElementById("stage-frame").src = url;
+      const reel = " Showing a still from the recorded launch reel (docs/figures/unity-loop.mp4).";
+      if (!champion) {
+        showStage(null, "Live preview unavailable: runs/champion.json could not be read." + reel);
+      } else if (!champion.share_url) {
+        showStage(null, "Live preview unavailable: this champion has no share URL (the offline demo starts no sandbox)." + reel);
+      } else if (await shareAlive(champion)) {
+        showStage(champion.share_url);
+      } else {
+        showStage(null, "Live preview unavailable: the champion's islo share has expired or is unreachable (shares last 24h-7d)." + reel);
+      }
     }
     loadRun();
   </script>

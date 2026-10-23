@@ -28,7 +28,7 @@ bin/unity-loop viz             # serve the dashboard
 # open http://localhost:8765
 ```
 
-You should see the scripted scores **1.2 → 2.4 → 3.1 → 3.7 → 4.4 → 4.8** for task `synthwave`. These are canned values (`DEMO_TRAJECTORY` in `bin/orchestrator.py`), not a measured run: the demo calls neither Claude nor islo. The dashboard shows the same canned trajectory; its preview iframe points at the champion share URL, which has expired.
+You should see the scripted scores **1.2 → 2.4 → 3.1 → 3.7 → 4.4 → 4.8** for task `synthwave`. These are canned values (`DEMO_TRAJECTORY` in `bin/orchestrator.py`), not a measured run: the demo calls neither Claude nor islo. The dashboard shows the same canned trajectory; its preview loads the champion share URL when that share is live and otherwise shows a still from the recorded reel (the May 2026 share has expired).
 
 ## Real run (Claude API + N islo sandboxes)
 
