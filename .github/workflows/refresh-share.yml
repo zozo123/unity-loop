@@ -1,13 +1,18 @@
 name: refresh-share
 
-# Keep the live unity-demo share URL fresh. islo shares max out at 7d TTL,
-# so re-issue every 6d and commit the new URL into runs/champion.json.
-# Manual `workflow_dispatch` lets you mint a new URL on demand too.
+# Mint a fresh share URL for the unity-demo islo sandbox and commit it into
+# runs/champion.json. islo shares max out at 7d TTL.
+#
+# Manual only. The 6-day cron was removed because every scheduled run from
+# 2026-05-31 to 2026-07-25 failed at the "Mint fresh share" step, and GitHub
+# then disabled the workflow for inactivity. The project page falls back to a
+# recorded still when the share is dead. To bring the live iframe back: make
+# sure the unity-demo sandbox exists and the ISLO_API_KEY secret is valid,
+# re-enable this workflow in the Actions tab, and optionally restore
+#   schedule:
+#     - cron: "17 3 */6 * *"
 
 on:
-  schedule:
-    # Every 6 days at 03:17 UTC (offset to avoid the busy top-of-hour).
-    - cron: "17 3 */6 * *"
   workflow_dispatch:
     inputs:
       sandbox:
