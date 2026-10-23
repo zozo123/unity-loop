@@ -25,7 +25,7 @@ A bandit-search loop where Claude iterates on the presentation of a Unity WebGL 
 ```bash
 bin/unity-loop demo            # 6-round canned trajectory, 1.2 → 4.8 score
 bin/unity-loop viz             # serve the dashboard
-# open http://localhost:8765
+# open http://localhost:8765/viz/
 ```
 
 You should see the scripted scores **1.2 → 2.4 → 3.1 → 3.7 → 4.4 → 4.8** for task `synthwave`. These are canned values (`DEMO_TRAJECTORY` in `bin/orchestrator.py`), not a measured run: the demo calls neither Claude nor islo. The dashboard shows the same canned trajectory; its preview loads the champion share URL when that share is live and otherwise shows a still from the recorded reel (the May 2026 share has expired).

@@ -84,7 +84,7 @@ def cmd_demo(args) -> int:
     print(f"✓ champion: {final['variant']['title']}  ({final['score']}/5)")
     print(f"✓ state:    runs/{run_id}/state.json")
     print(f"✓ champion: runs/champion.json")
-    print(f"→ next: bin/unity-loop viz  (open http://localhost:8765)")
+    print(f"→ next: bin/unity-loop viz  (open http://localhost:8765/viz/)")
     return 0
 
 

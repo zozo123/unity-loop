@@ -16,8 +16,9 @@ case "$cmd" in
   host)     exec python3 bin/host.py "$@" ;;
   viz)
     port="${1:-8765}"
-    echo "→ dashboard: http://localhost:${port}"
-    cd viz && exec python3 -m http.server "$port"
+    echo "→ dashboard: http://localhost:${port}/viz/"
+    # Serve the repo root, loopback only, so the dashboard can read runs/champion.json.
+    exec python3 -m http.server "$port" --bind 127.0.0.1
     ;;
   help|-h|--help|"")
     cat <<EOF
@@ -32,7 +33,7 @@ Subcommands:
   eval <run>    judge one run dir with Claude vision
   propose <run> ask Claude for the next variant given runs/
   host <name>   spawn one islo sandbox serving a variant (debug)
-  viz [port]    serve viz/index.html (default port 8765)
+  viz [port]    serve the dashboard at localhost:<port>/viz/ (default 8765)
 
 Examples:
   bin/unity-loop demo
