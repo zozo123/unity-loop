@@ -8,7 +8,8 @@ name: refresh-share
 # then disabled the workflow for inactivity. The project page falls back to a
 # recorded still when the share is dead. To bring the live iframe back: make
 # sure the unity-demo sandbox exists and the ISLO_API_KEY secret is valid,
-# re-enable this workflow in the Actions tab, and optionally restore
+# check that this workflow is enabled in the Actions tab, run it once by
+# hand, and optionally restore
 #   schedule:
 #     - cron: "17 3 */6 * *"
 
